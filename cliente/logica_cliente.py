@@ -21,8 +21,14 @@ from protocolo_cliente import (
     SystemStatus,
 )
 
-DEFAULT_HOST = "localhost"
+# Configuración anterior para ejecutar el servidor localmente:
+# DEFAULT_HOST = "localhost"
+# DEFAULT_PORT = 6000
+
+# Configuración actual: servidor desplegado en la nube mediante DNS.
+DEFAULT_HOST = "telematica-eafit.duckdns.org"
 DEFAULT_PORT = 6000
+
 SOCKET_TIMEOUT_SECONDS = 4.0
 RECV_BUFFER_SIZE = 4096
 

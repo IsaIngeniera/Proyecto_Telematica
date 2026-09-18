@@ -51,7 +51,19 @@ def stop_all(*_args: object) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Lanza múltiples nodos.")
     parser.add_argument("--count", type=int, default=5)
-    parser.add_argument("--host", default=os.getenv("SERVER_HOST", "localhost"))
+
+    # Configuración anterior para ejecutar el servidor localmente:
+    # parser.add_argument("--host", default=os.getenv("SERVER_HOST", "localhost"))
+
+    # Configuración actual: servidor desplegado en la nube mediante DNS.
+    parser.add_argument(
+    "--host",
+    default=os.getenv(
+        "SERVER_HOST",
+        "telematica-eafit.duckdns.org",
+        ),
+    )
+    
     parser.add_argument("--port", type=int, default=int(os.getenv("SERVER_UDP_PORT", "5000")))
     parser.add_argument("--interval", type=float, default=float(os.getenv("TELEMETRY_INTERVAL", "5")))
     args = parser.parse_args()

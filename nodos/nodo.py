@@ -333,12 +333,26 @@ def parse_args() -> NodeConfig:
         help="ID único, por ejemplo NODE01",
     )
 
+    # Configuración anterior para ejecutar el servidor localmente:
+    # parser.add_argument(
+    #     "--host",
+    #     default=os.getenv("SERVER_HOST", "localhost"),
+    #     help=(
+    #         "Nombre DNS del servidor "
+    #         "(por defecto SERVER_HOST o localhost)"
+    #     ),
+    # )
+
+    # Configuración actual: servidor desplegado en la nube mediante DNS.
     parser.add_argument(
         "--host",
-        default=os.getenv("SERVER_HOST", "localhost"),
+        default=os.getenv(
+            "SERVER_HOST",
+            "telematica-eafit.duckdns.org",
+        ),
         help=(
             "Nombre DNS del servidor "
-            "(por defecto SERVER_HOST o localhost)"
+            "(por defecto SERVER_HOST o telematica-eafit.duckdns.org)"
         ),
     )
 
