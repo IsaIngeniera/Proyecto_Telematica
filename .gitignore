@@ -1,0 +1,11 @@
+# Ejecutables y binarios de C
+servidor/server
+*.o
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+
+# Llaves de AWS y variables de entorno
+*.pem
+.env

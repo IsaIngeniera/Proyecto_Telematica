@@ -1,0 +1,10 @@
+services:
+  servidor-telemetria:
+    build:
+      context: ./servidor
+      dockerfile: Dockerfile
+    container_name: servidor_central
+    restart: unless-stopped
+    ports:
+      - "5000:5000/udp"
+      - "6000:6000/tcp"
