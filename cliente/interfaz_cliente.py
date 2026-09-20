@@ -26,26 +26,22 @@ from logica_cliente import (
     SystemStatus,
 )
 
-# ---------------------------------------------------------------------------
-# Paleta de colores (Soft UI & Neumorfismo Simulado)
-# ---------------------------------------------------------------------------
-BG_APP = "#E3EBF3"       # Fondo azul claro principal
-BG_PANEL = "#F0F5FA"     # Paneles (simula el vidrio esmerilado sólido)
-BG_CARD = "#E3EBF3"      # Tarjetas Neumórficas (mismo fondo que la app)
-BORDER_LIGHT = "#FFFFFF" # Borde claro (luz)
-BORDER_DARK = "#C4D0DF"  # Borde oscuro (sombra)
+BG_APP = "#E3EBF3"       
+BG_PANEL = "#F0F5FA"     
+BG_CARD = "#E3EBF3"      
+BORDER_LIGHT = "#FFFFFF" 
+BORDER_DARK = "#C4D0DF"  
 
-TXT_PRIMARY = "#2D3748"  # Texto principal oscuro
-TXT_MUTED = "#718096"    # Texto secundario/etiquetas
-TXT_FAINT = "#A0AEC0"    # Texto deshabilitado/placeholder
-TXT_STALE = "#94A3B8"    # Datos conservados después de una desconexión (Gris)
+TXT_PRIMARY = "#2D3748"  
+TXT_MUTED = "#718096"    
+TXT_FAINT = "#A0AEC0"    
+TXT_STALE = "#94A3B8"    
 
-ACCENT = "#60A5FA"       # Azul para botón primario
-SUCCESS = "#059669"      # Verde esmeralda oscuro (muy legible para ACTIVE)
-WARNING = "#F6AD55"      # Naranja
-DANGER = "#FC8181"       # Rojo suave
+ACCENT = "#60A5FA"       
+SUCCESS = "#059669"     
+WARNING = "#F6AD55"      
+DANGER = "#FC8181"     
 
-# Colores pastel para las tarjetas superiores (Soft UI)
 TOP_CARD_COLORS = {
     "BLUE": "#A0C4FF",
     "GREEN": "#B9FBC0",
@@ -54,12 +50,11 @@ TOP_CARD_COLORS = {
     "ORANGE": "#FFD6A5"
 }
 
-# Colores vibrantes distintos a los nodos para las métricas
 METRIC_COLORS = {
-    "TEMP": "#FF8A65",      # Naranja/Coral
-    "HUM": "#4FC3F7",       # Azul brillante
-    "ENERGY": "#FFD54F",    # Amarillo
-    "VIBRATION": "#BA68C8", # Púrpura
+    "TEMP": "#FF8A65",      
+    "HUM": "#4FC3F7",     
+    "ENERGY": "#FFD54F",  
+    "VIBRATION": "#BA68C8", 
 }
 
 METRIC_LABELS = {
