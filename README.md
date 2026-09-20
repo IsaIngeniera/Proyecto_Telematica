@@ -65,7 +65,7 @@ Este sistema implementa una arquitectura distribuida de telemetría y monitoreo 
 |  - Consultas en hilos secundarios (No bloquea) │    |  - Renderizado HTML/CSS (Puerto local 8080)  |
 |  - Inspección global y por nodo                |    |  - Consumo directo del protocolo TCP         |
 +────────────────────────────────────────────────+    +──────────────────────────────────────────────+
-text```
+```
 ⸻
 
 ## 📡 Especificación del Protocolo de Aplicación
