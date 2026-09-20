@@ -7,7 +7,7 @@
 
 ---
 
-## 👥 Equipo de Trabajo y Responsabilidades
+## Equipo de Trabajo y Responsabilidades
 
 * **Yan Frank Ríos López** — *Infraestructura Cloud en AWS EC2, Contenerización con Docker y Docker Compose, Configuración DDNS (DuckDNS) y Análisis de Tráfico de Red (Wireshark).*
 * **Isabella Cadavid Posada** — *Desarrollo del Cliente Operador (GUI Tkinter), Capa de Comunicación TCP y Servicio Web HTTP (Flask).*
@@ -16,7 +16,7 @@
 
 ---
 
-## 📌 Visión General del Proyecto
+## Visión General del Proyecto
 
 Este sistema implementa una arquitectura distribuida de telemetría y monitoreo de infraestructura física en tiempo real orientada a la pila de protocolos **TCP/IP**. Diseñado para operar en un entorno de red público y heterogéneo, desacopla la transmisión masiva y no orientada a conexión de métricas sensoriales (**UDP**) de la administración, auditoría e inspección concurrente y fiable (**TCP**).
 
@@ -29,7 +29,7 @@ Este sistema implementa una arquitectura distribuida de telemetría y monitoreo 
 
 ---
 
-## 🏗️ Arquitectura de Red y Flujo de Datos
+## Arquitectura de Red y Flujo de Datos
 ```text
 +----------------------------------------------------------------------------------------------------+
 |                                    CAPA DE TELEMETRÍA (IoT)                                        |
@@ -68,7 +68,7 @@ Este sistema implementa una arquitectura distribuida de telemetría y monitoreo 
 ```
 ⸻
 
-## 📡 Especificación del Protocolo de Aplicación
+## Especificación del Protocolo de Aplicación
 
 Protocolo de texto estructurado con delimitador por tubería (`|`), diseñado a la medida para balancear legibilidad humana con facilidad de parseo.
 
@@ -89,33 +89,37 @@ Comandos terminados en salto de línea (`\n`) procesados de forma secuencial sob
 
 ---
 
-## 📂 Organización del Repositorio
+## Organización del Repositorio
 
 ```text
 .
 ├── cliente/
-│   ├── main.py                    # Aplicación cliente con interfaz gráfica Tkinter
+│   ├── interfaz_cliente.py        # Componentes visuales y ventanas de la GUI en Tkinter
+│   ├── logica_cliente.py          # Gestión de estados, hilos y lógica de negocio del cliente
+│   ├── main.py                    # Punto de entrada principal del cliente operador TCP
 │   ├── protocolo_cliente.py       # Serializador y parser de tramas TCP para la GUI
-│   └── servicio_web.py            # Servidor HTTP Flask (puerto 8080) y vista web
+│   ├── requirements_web.txt       # Dependencias de Python para el servicio web
+│   └── servicio_web.py            # Servidor HTTP Flask (puerto 8080) y panel de solo lectura
+├── infraestructura/               # Scripts y configuraciones de red y despliegue cloud
 ├── nodos/
-│   ├── nodo.py                    # Emulador de nodo sensor individual con manejo de sockets
 │   ├── lanzar_nodos.py            # Orquestador multi-proceso para pruebas de concurrencia
-│   ├── protocolo.py               # Lógica común compartida para formateo de tramas
-│   └── test_protocolo.py          # Pruebas unitarias de construcción y validación de mensajes
+│   ├── nodo.py                    # Emulador de nodo sensor individual con manejo de sockets UDP
+│   ├── protocolo.py               # Módulo común de formateo y validación de tramas
+│   └── test_protocolo.py          # Pruebas unitarias de construcción de mensajes
 ├── servidor/
 │   ├── Dockerfile                 # Receta de compilación nativa en C sobre debian:bookworm-slim
-│   ├── docker-compose.yml         # Orquestación del servicio y forward de puertos
-│   ├── Makefile                   # Reglas de compilación y limpieza con gcc
-│   ├── server.c                   # Punto de entrada, bucle select(), sockets TCP/UDP y señales
-│   ├── protocolo.c / .h           # Procesamiento de líneas de texto y respuestas del protocolo
-│   └── nodos.c / .h               # Estructuras de datos dinámicas, estados y reglas de alerta
-├── capturas/
-│   └── captura_telematica.pcapng  # Archivo de trazas de red capturado en Wireshark
+│   ├── Makefile                   # Reglas de compilación y limpieza del binario con gcc
+│   ├── nodos.c / nodos.h          # Estructuras de datos dinámicas, estados y reglas de alerta
+│   ├── protocolo.c / protocolo.h  # Procesamiento de líneas de texto y respuestas del protocolo
+│   ├── server                     # Binario ejecutable compilado del servidor central
+│   └── server.c                   # Punto de entrada, bucle select(), sockets TCP/UDP y señales
+├── .gitignore                     # Exclusión de binarios, temporales y cachés (__pycache__)
+├── docker-compose.yml             # Orquestación del servicio central y mapeo de puertos
 └── README.md                      # Documentación técnica del proyecto
 ```
 ---
 
-## 🚀 Guía de Despliegue y Ejecución
+##  Guía de Despliegue y Ejecución
 
 ### Paso 1: Puesta en marcha del Servidor Central (AWS EC2 o Local)
 El servidor corre dentro de un contenedor aislado con compilación nativa.
@@ -175,7 +179,7 @@ GET_ALERTS
 
 ---
 
-## 📊 Validación Empírica y Pruebas de Integración
+## Validación Empírica y Pruebas de Integración
 
 ### Balance Cruzado de Paquetes (Tx vs Rx vs Pérdida)
 Durante la prueba de integración de punta a punta a través de Internet público, se reiniciaron los contadores del servidor y se emitieron ráfagas continuas desde una red externa:
@@ -192,7 +196,7 @@ Durante la prueba de integración de punta a punta a través de Internet públic
 
 ---
 
-## 🛠️ Tecnologías y Herramientas Utilizadas
+## Tecnologías y Herramientas Utilizadas
 
 * **Lenguajes:** C (C99 / POSIX Sockets), Python 3.10+.
 * **Infraestructura Cloud:** AWS EC2 (Instancia Ubuntu Server), Security Groups.
