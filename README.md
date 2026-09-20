@@ -91,6 +91,7 @@ Comandos terminados en salto de línea (`\n`) procesados de forma secuencial sob
 
 ## 📂 Organización del Repositorio
 
+```text
 .
 ├── cliente/
 │   ├── main.py                    # Aplicación cliente con interfaz gráfica Tkinter
@@ -111,7 +112,7 @@ Comandos terminados en salto de línea (`\n`) procesados de forma secuencial sob
 ├── capturas/
 │   └── captura_telematica.pcapng  # Archivo de trazas de red capturado en Wireshark
 └── README.md                      # Documentación técnica del proyecto
-
+```
 ---
 
 ## 🚀 Guía de Despliegue y Ejecución
