@@ -1,4 +1,3 @@
-
 # Plataforma Distribuida de Telemetría y Gestión de Infraestructura Inteligente
 
 > **Proyecto 1 — Internet: Arquitectura y Protocolos**  
@@ -21,11 +20,11 @@
 Este sistema implementa una arquitectura distribuida de telemetría y monitoreo de infraestructura física en tiempo real orientada a la pila de protocolos **TCP/IP**. Diseñado para operar en un entorno de red público y heterogéneo, desacopla la transmisión masiva y no orientada a conexión de métricas sensoriales (**UDP**) de la administración, auditoría e inspección concurrente y fiable (**TCP**).
 
 ### Aspectos Destacados de Ingeniería:
-* **Modelo de Red Híbrido:** Uso coordinado de sockets UDP (puerto `5000`) para telemetría continua de bajo retardo y sockets TCP (puerto `6000`) para consultas de estado seguras y libres de pérdidas.
+* **Modelo de Red Híbrido:** Uso coordinado de sockets UDP (puerto `5000`) para telemetría continua de bajo retardo y sockets TCP (puerto `6000`) para consultas de estado con entrega confiable mediante reconocimientos y retransmisión de segmentos.
 * **Servidor Central de Alto Rendimiento en C:** Bucle de eventos no bloqueante mediante multiplexación de E/S con la llamada de sistema `select()`, capaz de soportar hasta 32 operadores simultáneos sin sobrecarga de hilos ni condiciones de carrera.
-* **Despliegue Nativo en la Nube:** Contenedor optimizado sobre Debian desplegado en una instancia **AWS EC2** (Ubuntu 26.04 LTS), accesible públicamente mediante **Dynamic DNS (DuckDNS)** sin requerir direccionamiento IP estático.
+* **Despliegue Nativo en la Nube:** Contenedor optimizado sobre Debian desplegado en una instancia **AWS EC2** (Ubuntu 24.04 LTS), accesible públicamente mediante **Dynamic DNS (DuckDNS)** sin requerir direccionamiento IP estático.
 * **Detección Automática de Anomalías:** Procesamiento en memoria de lecturas de sensores que dispara alertas automáticas cuando las variables superan los umbrales críticos de seguridad.
-* **Auditoría Integral de Capa de Transporte:** Verificación empírica con Wireshark del *Three-Way Handshake*, segmentación, transferencia fiable y balance matemático con **0% de pérdida de paquetes** a través de Internet.
+* **Auditoría Integral de Capa de Transporte:** Verificación empírica con Wireshark del *Three-Way Handshake*, segmentación, entrega confiable (TCP retransmite los segmentos perdidos usando reconocimientos) y balance matemático con **0% de pérdida de paquetes** a través de Internet.
 
 ---
 
@@ -79,13 +78,17 @@ Cada ciclo del nodo emite cuatro datagramas independientes (uno por métrica):
 * **Ejemplo real:** `TELEMETRY|NODE01|21|TEMP|45.00`
 
 ### 2. Canal del Operador y Consultas [TCP :6000]
-Comandos terminados en salto de línea (`\n`) procesados de forma secuencial sobre conexiones persistentes:
+Comandos terminados en salto de línea (`\n`) procesados de forma secuencial. Cada comando abre una conexión TCP, envía la solicitud, recibe la respuesta y cierra el socket (conexión de corta duración por comando, no un socket persistente compartido entre comandos):
 
 | Comando | Formato de Respuesta Exitosa | Descripción |
 | :--- | :--- | :--- |
 | `GET_STATUS` | `STATUS\|OK\|REGISTERED=<n>\|ACTIVE=<n>\|ALERTS=<n>\|UDP_RECEIVED=<n>\|UDP_LOST=<n>` | Consulta las estadísticas consolidadas y balance de paquetes. |
-| `GET_ALERTS` | `ALERTS\|<NODE_ID>,<TIPO>,<VALOR>,<TIMESTAMP>\|...` | Retorna el listado cronológico de eventos críticos detectados. |
+| `GET_ALERTS` | `ALERTS\|OK\|<CANTIDAD>\|<NODE_ID>,<TIPO>,<VALOR>,<TIMESTAMP>\|...` | Retorna la cantidad y el listado cronológico de eventos críticos detectados. |
+| `GET_NODES` | `NODES\|OK\|<CANTIDAD>\|<NODE_ID>,<ESTADO>\|...` | Retorna el listado de nodos registrados y su estado (activo/inactivo). |
+| `GET_NODE\|<NODE_ID>` | `NODE\|OK\|<NODE_ID>\|TEMP=<v>\|HUM=<v>\|ENERGY=<v>\|VIBRATION=<v>` | Consulta el detalle de las últimas métricas de un nodo específico. |
 | *Comando inválido* | `ERROR\|400\|INVALID_MESSAGE` | Manejo preventivo del servidor ante tramas corruptas o desconocidas. |
+
+> **Nota:** Verifica en `protocolo.c` / `protocolo_cliente.py` que los nombres exactos de `GET_NODES` y `GET_NODE` coincidan con los que implementaste; ajústalos si tu servidor usa otra convención.
 
 ---
 
@@ -320,19 +323,16 @@ http://127.0.0.1:8080
 ##  Guía de Despliegue y Ejecución
 
 ### Paso 1: Puesta en marcha del Servidor Central (AWS EC2 o Local)
-El servidor corre dentro de un contenedor aislado con compilación nativa.
+El servidor corre dentro de un contenedor aislado con compilación nativa. `docker-compose.yml` vive en la raíz del proyecto, así que estos comandos se ejecutan desde ahí (sin entrar a `servidor/`).
 
 ```bash
-# 1. Ingresar al directorio del servidor
-cd servidor
-
-# 2. Construir la imagen y levantar el contenedor en segundo plano
+# 1. Construir la imagen y levantar el contenedor en segundo plano
 docker compose up -d --build
 
-# 3. Validar estado de los puertos expuestos (5000/udp y 6000/tcp)
+# 2. Validar estado de los puertos expuestos (5000/udp y 6000/tcp)
 docker compose ps
 
-# 4. Monitorear los registros de telemetría y conexiones en vivo
+# 3. Monitorear los registros de telemetría y conexiones en vivo
 docker logs -f servidor_central
 ```
 
@@ -363,7 +363,7 @@ python3 main.py
 #### Opción B: Dashboard Web HTTP (Flask)
 ```bash
 cd cliente
-pip install flask
+python3 -m pip install flask
 python3 servicio_web.py
 ```
 *Abre tu navegador e ingresa a `http://localhost:8080` para visualizar el panel de solo lectura.*
@@ -388,7 +388,7 @@ Durante la prueba de integración de punta a punta a través de Internet públic
 * **Alertas críticas detectadas:** 7 alertas generadas de forma determinista ante la anomalía térmica de 45.00 °C programada en `NODE01`.
 
 ### Análisis de Tráfico en Wireshark (`captura_telematica.pcapng`)
-1. **Concurrencia de Protocolos:** Coexistencia pacífica sobre la misma interfaz del flujo constante de datagramas UDP (5000) y las sesiones fiables TCP (6000).
+1. **Concurrencia de Protocolos:** Coexistencia pacífica sobre la misma interfaz del flujo constante de datagramas UDP (5000) y las sesiones TCP (6000).
 2. **Ciclo de Vida TCP:** Inspección completa del *Three-Way Handshake* (`SYN`, `SYN-ACK`, `ACK`), intercambio de carga útil PSH/ACK para `GET_STATUS` y terminación ordenada con banderas `FIN, ACK`.
 3. **Estructura UDP:** Verificación del encabezado mínimo de 8 bytes sin sobrecarga y entrega del payload en texto plano ASCII.
 
@@ -402,4 +402,3 @@ Durante la prueba de integración de punta a punta a través de Internet públic
 * **Redes y Resolución:** Dynamic DNS (DuckDNS API), POSIX `getaddrinfo()`.
 * **Auditoría e Inspección:** Wireshark Network Analyzer, Netcat (`nc`), GNU Make, GCC.
 * **Frameworks y GUI:** Python Tkinter, Flask Microframework.
-
