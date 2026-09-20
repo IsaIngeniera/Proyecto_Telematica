@@ -119,6 +119,204 @@ Comandos terminados en salto de línea (`\n`) procesados de forma secuencial sob
 ```
 ---
 
+## Requisitos Previos
+
+Para ejecutar el proyecto se requiere:
+
+* **Python 3.10 o superior.**
+* **Tkinter** para la interfaz gráfica.
+* **Flask** para el servicio web.
+* **GCC y GNU Make** para compilar el servidor localmente.
+* **Docker y Docker Compose** para ejecutar el servidor en un contenedor.
+* **Conexión a Internet** para utilizar el servidor desplegado mediante DuckDNS.
+
+### Verificar Python 3
+
+```bash
+python3 --version
+```
+
+Si Python 3 no está instalado en macOS, puede instalarse desde [python.org](https://www.python.org/) o mediante Homebrew:
+
+```bash
+brew install python
+```
+
+### Verificar Tkinter
+
+Tkinter normalmente está incluido en la instalación oficial de Python. Puede comprobarse con:
+
+```bash
+python3 -c "import tkinter; print('TKINTER DISPONIBLE')"
+```
+
+Si aparece:
+
+```text
+TKINTER DISPONIBLE
+```
+
+no es necesario instalar nada adicional.
+
+Si se utilizó Python mediante Homebrew y Tkinter no está disponible, debe instalarse el paquete compatible con la versión de Python utilizada. También puede instalarse Python desde el instalador oficial de [python.org](https://www.python.org/), que incluye soporte para Tkinter.
+
+### Instalar Flask
+
+Desde la carpeta principal `Proyecto_Telematica`:
+
+```bash
+python3 -m pip install -r cliente/requirements_web.txt
+```
+
+Para comprobar la instalación:
+
+```bash
+python3 -c "import flask; print('FLASK DISPONIBLE')"
+```
+
+---
+
+## Ejecución Usando el Servidor en la Nube
+
+Antes de comenzar, la instancia EC2 y el contenedor Docker deben estar encendidos.
+
+### Terminal 1: Comprobar la Conexión TCP
+
+Este comando puede ejecutarse desde cualquier carpeta:
+
+```bash
+python3 -c 'import socket; s=socket.create_connection(("telematica-eafit.duckdns.org",6000),5); print("CONEXIÓN TCP EXITOSA"); s.close()'
+```
+
+Resultado esperado:
+
+```text
+CONEXIÓN TCP EXITOSA
+```
+
+### Terminal 2: Ejecutar Cinco Nodos
+
+Desde la carpeta principal del proyecto:
+
+```bash
+cd nodos
+python3 lanzar_nodos.py --count 5 --interval 2 --host telematica-eafit.duckdns.org --port 5000
+```
+
+Los nodos utilizan:
+
+```text
+UDP → telematica-eafit.duckdns.org:5000
+```
+
+Esta terminal debe permanecer abierta.
+
+### Terminal 3: Ejecutar el Cliente Operador
+
+Desde la carpeta principal, en otra terminal:
+
+```bash
+cd cliente
+python3 main.py
+```
+
+En la interfaz verificar:
+
+```text
+Host: telematica-eafit.duckdns.org
+Puerto: 6000
+```
+
+Después, presionar **Actualizar**.
+
+### Terminal 4: Ejecutar el Servicio Web
+
+En otra terminal:
+
+```bash
+cd cliente
+TELEMETRY_SERVER_HOST=telematica-eafit.duckdns.org TELEMETRY_SERVER_PORT=6000 python3 servicio_web.py
+```
+
+Abrir en el navegador:
+
+```text
+http://127.0.0.1:8080
+```
+
+Aunque la página se abre localmente en el puerto `8080`, el servicio Flask consulta al servidor central desplegado en AWS mediante TCP y el dominio configurado.
+
+---
+
+## Ejecución Completamente Local
+
+Para esta prueba no se necesita EC2, DuckDNS ni el contenedor remoto.
+
+Se necesitan cuatro terminales.
+
+### Terminal 1: Compilar y Ejecutar el Servidor Local
+
+Desde la carpeta principal:
+
+```bash
+cd servidor
+make
+./server 5000 6000
+```
+
+El servidor escuchará en:
+
+```text
+UDP 5000 → telemetría
+TCP 6000 → operadores
+```
+
+No cierres esta terminal.
+
+### Terminal 2: Ejecutar los Cinco Nodos Localmente
+
+Desde la carpeta principal:
+
+```bash
+cd nodos
+python3 lanzar_nodos.py --count 5 --interval 2 --host localhost --port 5000
+```
+
+No cierres esta terminal.
+
+### Terminal 3: Ejecutar Tkinter
+
+Desde la carpeta principal:
+
+```bash
+cd cliente
+python3 main.py
+```
+
+Como el valor predeterminado del código es el dominio de la nube, en la interfaz debes cambiar manualmente:
+
+```text
+Host: localhost
+Puerto: 6000
+```
+
+Luego presiona **Actualizar**.
+
+### Terminal 4: Ejecutar el Servicio Web Localmente
+
+Desde la carpeta principal:
+
+```bash
+cd cliente
+TELEMETRY_SERVER_HOST=localhost TELEMETRY_SERVER_PORT=6000 python3 servicio_web.py
+```
+
+Abrir en el navegador:
+
+```text
+http://127.0.0.1:8080
+```
+
 ##  Guía de Despliegue y Ejecución
 
 ### Paso 1: Puesta en marcha del Servidor Central (AWS EC2 o Local)
