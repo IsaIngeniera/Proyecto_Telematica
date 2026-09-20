@@ -30,13 +30,13 @@ Este sistema implementa una arquitectura distribuida de telemetría y monitoreo 
 ---
 
 ## 🏗️ Arquitectura de Red y Flujo de Datos
-
+```text
 +----------------------------------------------------------------------------------------------------+
 |                                    CAPA DE TELEMETRÍA (IoT)                                        |
 |  [NODE01 (Anomalías)]  [NODE02]  [NODE03]  [NODE04]  [NODE05]                                      |
-|  - Sockets Python UDP (socket.AF_INET, socket.SOCK_DGRAM)                                         |
-|  - Resolución de nombres vía socket.getaddrinfo()                                                 |
-|  - Ráfagas periódicas de 4 variables: TEMP, HUM, ENERGY, VIBRATION                                |
+|  - Sockets Python UDP (socket.AF_INET, socket.SOCK_DGRAM)                                          |
+|  - Resolución de nombres vía socket.getaddrinfo()                                                  |
+|  - Ráfagas periódicas de 4 variables: TEMP, HUM, ENERGY, VIBRATION                                 |
 +----------------------------------------------------------------------------------------------------+
                                                   │
                                                   │  UDP Datagrams (Puerto 5000)
@@ -50,23 +50,23 @@ Este sistema implementa una arquitectura distribuida de telemetría y monitoreo 
 |  ┌──────────────────────────────────────────────────────────────────────────────────────────────┐  |
 |  │ Servidor Central en Lenguaje C                                                               │  |
 |  │  - Multiplexación select() sobre fd_set (1 socket UDP + 1 socket TCP Listen + N sockets TCP) │  |
-|  │  - Almacén de Estado en Memoria (Tabla de dispositivos, métricas recientes y contadores)    │  |
+|  │  - Almacén de Estado en Memoria (Tabla de dispositivos, métricas recientes y contadores)     │  |
 |  │  - Motor de Reglas: TEMP > 40.0 °C  ──>  Disparo de alerta TEMP_HIGH                         │  |
-|  │  - Tolerancia a fallos: SO_REUSEADDR habilitado y señal SIGPIPE ignorada                      │  |
+|  │  - Tolerancia a fallos: SO_REUSEADDR habilitado y señal SIGPIPE ignorada                     │  |
 |  └──────────────────────────────────────────────────────────────────────────────────────────────┘  |
 +----------------------------------------------------------------------------------------------------+
                      ▲                                                    ▲
                      │                                                    │
                      │  TCP Stream (Puerto 6000)                          │  TCP Stream (Puerto 6000)
                      │                                                    │
-+────────────────────┴───────────────────────────+    +───────────────────┴──────────────────────────+
-|           CLIENTE OPERADOR (ESCRITORIO)         |    |              SERVICIO WEB (HTTP)             |
++────────────────────┴───────────────────────────+    +───────────────────┴────────────────────────+
+|           CLIENTE OPERADOR (ESCRITORIO)        |    |              SERVICIO WEB (HTTP)             |
 |  - Interfaz Gráfica en Tkinter                 |    |  - Microservicio Flask en Python             |
 |  - Consultas en hilos secundarios (No bloquea) │    |  - Renderizado HTML/CSS (Puerto local 8080)  |
 |  - Inspección global y por nodo                |    |  - Consumo directo del protocolo TCP         |
 +────────────────────────────────────────────────+    +──────────────────────────────────────────────+
 
----
+⸻
 
 ## 📡 Especificación del Protocolo de Aplicación
 
